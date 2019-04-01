@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+   <meta charset="UTF-8" />
+   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+   <title>Vue Lab</title>
+   <link
+     rel="stylesheet"    href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+     crossorigin="anonymous"
+   />
+ </head>
+ <body>
+
+   <!--The message, served fresh by Vue, seasoned with a hint of bootstrap-->
+   <div class="container">
+     <div id="app">
+       Message: {{ message }}
+       <!--
+       <li v-for="todo in todos" :key="todo.id">
+        {{ todo.text}}
+      </li>
+      -->
+      <input type="number" min="0" max="30" v-model="numStops"></input>
+      <div v-for="stop in filteredStops">
+        <div class="card w-100 shadow bg-light" style="width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">{{stop['name']}}</h5>
+          <h6 class="card-subtitle mb-2 text-muted">Distance: ~{{Math.sqrt(((currentLat-stop['lat'])**2)+((currentLong-stop['lon'])**2))*69}} miles</h6>
+          <p class="card-text">{{stop['description']}}</p>
+        </div>
+        </div>
+     </div>
+     <br><br><br><br>
+   </div>
+   </div>
+
+   <!--Bootstrap crap-->
+   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+   <script
+     src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+     integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+     crossorigin="anonymous"
+   ></script>
+   <script
+     src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+     integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+     crossorigin="anonymous"
+   ></script>
+
+   <!--Vue Crap-->
+   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+   <!--The Vue App Declaration-->
+   <script>
+   const app = new Vue({
+     el: '#app',
+     data:
+       {
+         message: 'Hello Vue!',
+         todos:
+           [
+             {id: 0, text: 'Play video games'},
+             {id: 1, text: 'Eat cookies'},
+             {id: 2, text: 'Go to the beach'},
+             {id: 3, text: 'Minecraft lol'},
+             {id: 4, text: 'No fortnite'},
+             {id: 5, text: 'Live wholesomely'}
+           ],
+         stops: [],
+         numStops: 10,
+         currentLat: 0,
+         currentLong: 0,
+       },
+     computed:
+      {
+        filteredStops: function()
+        {
+          this.stops.sort((a, b) => (distance(this.currentLat, this.currentLong, a['lat'], a['lon']) > distance(this.currentLat, this.currentLong, b['lat'], b['lon']) ) ? 1 : -1);
+          return this.stops.slice(0, this.numStops)
+        }
+      }
+     });
+
+     fetch('https://utils.pauliankline.com/stops.json')
+     .then(function(response) {return response.json();})
+     .then(function(myJson) {app.stops = myJson;});
+
+     if ("geolocation" in navigator) {
+       console.log("Geolocation online.");
+     } else {
+       app.message = "DANGER. GEOLOCATION OFFLINE.";
+     }
+
+    var watchID = navigator.geolocation.watchPosition(function(position) {
+      app.currentLat = position.coords.latitude;
+      app.currentLong = position.coords.longitude;
+    });
+
+    function distance(lat1, long1, lat2, long2)
+    {
+      return Math.sqrt(((lat1-lat2)**2)+((long1-long2)**2));
+    }
+   </script>
+
+   <!--Weird Jumbotron thing idk lol-->
+
+
+ </body>
+</html>
